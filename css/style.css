@@ -52,7 +52,7 @@ text-align: left;
 }
 
 .header__menu-item:hover {
-  color: #FF1493;
+  color: 254,40,162;
  font-size: 50px;
 transition: 0.4s;
   }
