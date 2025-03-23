@@ -1,105 +1,130 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Mono+One&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    <link rel="stylesheet" href="./css/normalize.css"/>
-    <link rel="stylesheet" href="./css/style.css">
-    <title>Жадем</title>
-</head>
-<body>
-    <header>
-        <div class="wrapper">
-            <div class="header">
-                <ul class="header__menu">
-                    <li class="header__menu-item"><a href="#contact">контакты</a></li>
-                    <li class="header__menu-item"><a href="#about">о нас</a></li>
-                </ul>
-            </div>
-        </div>
-    </header>
-    <main class="main">
-        <section class="banner-section">
-            <div class="wrapper">
-                    <div class="text-info">
-                        <h1 class="up-info">жадем-</h1>
-                        <h3 class="low-info">райское агентство для жаб</h3>
-                    </div>
-            </div>
-        </section>
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
-        <section class="garant">
-            <div class="wrapper">
-                <div class="garant-block" id="about">             
-                    <p>Не оставляйте своих любимых жаб без должного прощания. Наше похоронное агентство для жаб гарантирует достойное и заботливое прощание с вашими друзьями. Доверьте нам их уход, чтобы их память осталась навсегда живой в ваших сердцах. Позвольте им уйти в мир Лягушачьего Рая с достоинством. Каждая жаба заслуживает самого лучшего прощания.</p>
-                    <img src="./img/frog2.svg" alt="Лягушка" class="garant-img">
-                </div>
-            </div>
-        </section>
+# Загрузка данных
+file_path = 'russian_demography.xlsx'
 
-        <section class="article">
-            <div class="wrapper">
-                <h3>Интересные статьи</h3>
-                <div class="article-list">
-                    <div class="arcticle-list__card">                        
-                        <img src="./img/article/article1.svg" alt="Организация похорон" class="article-list__img">
-                        <h4 class="article-list__title">Организация похорон</h4>
-                    </div>
-                    <div class="arcticle-list__card">                        
-                        <img src="./img/article/article2.svg" alt="Магазин крыльев" class="article-list__img">
-                        <h4 class="article-list__title">Магазин крыльев</h4>
-                    </div>
-                    <div class="arcticle-list__card">                        
-                        <img src="./img/article/article3.svg" alt="Связь с близкими" class="article-list__img">
-                        <h4 class="article-list__title">Связь с близкими</h4>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-        <section class="konsul">
-            <div class="wrapper">
-                <div class="konsul-block">            
-                    <p>На наших консультациях мы расскажем Вам, как можно организовать похороны и поминки, как происходит перемещение в рай и как в нем адаптироваться.</p>
-                    <img src="./img/foto3.svg" alt="Консультации">
-                </div>
-            </div>
-        </section>
-           
-        <section class="wednesday">
-            <div class="wrapper">
-                <h3>Идеальная среда</h3>
-                <div class="wednesday-block">
-                    <img src="./img/tape4.svg" alt="" class="wednesday-tape">
-                    <p>В раю жабы находят идеальное место для своей адаптации. Они плавают в бесконечных ручьях, окруженные буйной зеленью и яркими цветами. Здесь каждая жаба обретает свободу, покой и гармонию.</p>
-                    <img src="./img/tape4.svg" alt="" class="wednesday-tape">
-                </div>
-            </div>
-        </section>
+df = pd.read_excel(file_path, sheet_name=0, header=None)
 
-        <section class="last-bg">
-            <div class="wrapper">
-                <div class="last-text">
-                    <p>Вверх к облакам с Жадем!</p>
-                </div>
-            </div>
-        </section>            
-        
-    </main>
-   
-    <footer>
-        <div class="wrapper">
-            <div class="footer">
-                <ul class="footer__menu">
-                    <li class="footer__menu-item" id="contact">контакты</a></li>
-                    <li class="footer__menu-item"><a href="#top">начало страницы</a></li>
-                </ul>
-            </div>
-        </div>
-    </footer>
-</body>
-</html> 
+years_raw = df.iloc[4, 1:-1].values  # годы (строка 5)
+population_older_raw = df.iloc[6, 1:-1].values  # численность старше трудоспособного
+percentage_older_raw = df.iloc[7, 1:-1].values  # доля в процентах
+
+# Очистка данных от NaN значений
+valid_indices = ~pd.isnull(years_raw) & ~pd.isnull(population_older_raw) & ~pd.isnull(percentage_older_raw)
+years = years_raw[valid_indices].astype(int)
+population_older = population_older_raw[valid_indices].astype(float)
+percentage_older = percentage_older_raw[valid_indices].astype(float)
+
+# Расчет годового изменения
+annual_change = [np.nan] + list(np.diff(population_older))
+
+# Создание графиков
+fig, axs = plt.subplots(3, 1, figsize=(12, 18))
+
+# 1. График динамики численности населения старше трудоспособного возраста
+axs[0].plot(years, population_older, marker='o', color='b')
+axs[0].set_title('Численность населения старше трудоспособного возраста РФ')
+axs[0].set_ylabel('Численность (тыс. чел.)')
+axs[0].grid(True)
+
+# 2. Доля во всем населении старше трудоспособного возраста
+axs[1].plot(years, percentage_older, marker='o', color='g')
+axs[1].set_title('Доля населения старше трудоспособного возраста РФ')
+axs[1].set_ylabel('Доля (%)')
+axs[1].grid(True)
+
+# 3. Годовое изменение численности населения
+axs[2].bar(years[1:], annual_change[1:], color='orange')
+axs[2].set_title('Годовое изменение численности населения старше трудоспособного возраста в РФ')
+axs[2].set_ylabel('Изменение (тыс. чел.)')
+axs[2].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+df = pd.read_excel(file_path, sheet_name=1, header=None)
+
+# Извлечение данных
+years_raw = df.iloc[4, 1::3].values  # годы (строка 5, каждая третья колонка)
+regions = df.iloc[6:, 0].values  # названия регионов
+
+# Очистка данных от NaN
+valid_years = pd.notnull(years_raw)
+years = years_raw[valid_years].astype(int)
+
+# Создание DataFrame для хранения данных
+data_total = pd.DataFrame(index=regions)
+data_elderly = pd.DataFrame(index=regions)
+data_percentage = pd.DataFrame(index=regions)
+
+# Заполнение DataFrame
+for i, year in enumerate(years):
+    col_idx = 2 + i * 3
+    if col_idx + 2 < df.shape[1]:
+        data_total[year] = df.iloc[6:, col_idx].values
+        data_elderly[year] = df.iloc[6:, col_idx + 1].values
+        data_percentage[year] = df.iloc[6:, col_idx + 2].values
+    else:
+        print(f"Ошибка: Недостаточно данных для года {year}. Пропускаем.")
+
+# Удаление строк с пропущенными значениями
+data_total.dropna(inplace=True)
+data_elderly.dropna(inplace=True)
+data_percentage.dropna(inplace=True)
+
+# Преобразование данных в числовой формат
+data_total = data_total.apply(pd.to_numeric, errors='coerce')
+data_elderly = data_elderly.apply(pd.to_numeric, errors='coerce')
+data_percentage = data_percentage.apply(pd.to_numeric, errors='coerce')
+
+# Выделение федеральных округов
+federal_districts = data_total.index[data_total.index.str.contains("федеральный округ", na=False)]
+
+# Проверка результата
+print("Федеральные округа:")
+print(federal_districts)
+
+# Функция для построения графиков
+def plot_data(data, title, ylabel):
+    plt.figure(figsize=(14, 8))
+    for district in data.index:
+        x = data.columns
+        y = data.loc[district]
+
+        # Проверка, что данные не пустые и имеют одинаковую размерность
+        if len(x) == len(y) and not pd.isnull(y).all():
+            plt.plot(x, y, label=district)
+        else:
+            print(f"Пропущены данные для {district}: x={x}, y={y}")
+
+    plt.title(title)
+    plt.xlabel('Год')
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+# 1. График динамики общей численности населения по федеральным округам
+plot_data(data_total.loc[federal_districts],
+          'Динамика общей численности населения по федеральным округам',
+          'Численность (тыс. чел.)')
+
+# 2. График динамики численности населения старше трудоспособного возраста по федеральным округам
+plot_data(data_elderly.loc[federal_districts],
+          'Динамика численности населения старше трудоспособного возраста по федеральным округам',
+          'Численность (тыс. чел.)')
+
+# 3. Тепловая карта доли населения старше трудоспособного по федеральным округам
+plt.figure(figsize=(10, 6))
+plt.imshow(data_percentage.loc[federal_districts].values, cmap='coolwarm', aspect='auto')
+plt.yticks(range(len(federal_districts)), federal_districts)
+plt.xticks(range(len(data_percentage.columns)), data_percentage.columns, rotation=45)
+plt.colorbar(label='Численость населения по федеральным округам')
+plt.title('Доля населения старше трудоспособного возраста по федеральным округам')
+plt.xlabel('Год')
+plt.ylabel('Федеральный округ')
+plt.tight_layout()
+plt.show()
